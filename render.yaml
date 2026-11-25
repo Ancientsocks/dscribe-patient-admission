@@ -1,0 +1,28 @@
+# Render blueprint for the FastAPI backend.
+# Deploy with: Render Dashboard -> New -> Blueprint -> point at this repository.
+services:
+  - type: web
+    name: dscribe-patient-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        sync: false # set in the Render dashboard, e.g. sqlite:////var/data/dscribe.db
+      - key: CORS_ORIGINS
+        sync: false # e.g. https://your-frontend.vercel.app
+      - key: DOCTORS
+        sync: false
+    disk:
+      # SQLite data survives restarts because it lives on a persistent disk.
+      # Free plans do not support disks - use a paid instance or PostgreSQL.
+      name: dscribe-data
+      mountPath: /var/data
+      sizeGB: 1
