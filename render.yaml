@@ -1,5 +1,9 @@
-# Render blueprint for the FastAPI backend.
-# Deploy with: Render Dashboard -> New -> Blueprint -> point at this repository.
+databases:
+  - name: dscribe-db
+    plan: free
+    databaseName: dscribe
+    user: dscribe
+
 services:
   - type: web
     name: dscribe-patient-api
@@ -15,14 +19,10 @@ services:
       - key: ENVIRONMENT
         value: production
       - key: DATABASE_URL
-        sync: false # set in the Render dashboard, e.g. sqlite:////var/data/dscribe.db
+        fromDatabase:
+          name: dscribe-db
+          property: connectionString
       - key: CORS_ORIGINS
-        sync: false # e.g. https://your-frontend.vercel.app
+        sync: false
       - key: DOCTORS
         sync: false
-    disk:
-      # SQLite data survives restarts because it lives on a persistent disk.
-      # Free plans do not support disks - use a paid instance or PostgreSQL.
-      name: dscribe-data
-      mountPath: /var/data
-      sizeGB: 1
